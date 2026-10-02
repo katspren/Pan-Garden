@@ -19,13 +19,65 @@ function collection(){let cats=['All','Lips','Blush','Eyes','Base','Other'];let 
 function stats(){let total=products.reduce((a,p)=>a+p.uses,0),finished=products.filter(p=>p.uses>=p.goal).length,active=products.filter(p=>p.active&&p.uses<p.goal).length,days=new Set(history.map(h=>h.date.slice(0,10))).size;let cats=['Lips','Blush','Eyes','Base','Other'], vals=cats.map(c=>[c,products.filter(p=>p.category===c).reduce((a,p)=>a+p.uses,0)]),max=Math.max(1,...vals.map(x=>x[1]));return `<section class="screen">${header('Stats')}<div class="filters"><button class="chip on">This Month</button><button class="chip">All Time</button><button class="chip">By Category</button></div><div class="statsGrid"><div class="statCard"><strong>🌿 ${total}</strong><span>Total Uses</span></div><div class="statCard"><strong>🌸 ${active}</strong><span>Products In Progress</span></div><div class="statCard"><strong>🌱 ${finished}</strong><span>Products Finished</span></div><div class="statCard"><strong>⭐ ${days}</strong><span>Days Tracked</span></div></div><div class="sectionHead"><h2>Usage by Category</h2></div><div class="barList">${vals.map(([c,v])=>`<div class="barRow"><span>${c}</span><div class="barTrack"><i style="width:${v/max*100}%"></i></div><b>${v}</b></div>`).join('')}</div>${bottom()}</section>`}
 function panned(){let done=products.filter(p=>p.uses>=p.goal);return `<section class="screen"><div class="topbar"><button class="iconBtn back" onclick="nav('garden')">‹</button><div class="titleBlock"><h1>Panned Garden</h1></div><span></span></div><div class="pannedScene"><span class="flowerDot" style="left:25px;top:40px">🌸</span><span class="flowerDot" style="right:20px;top:90px">🌼</span><div class="pannedPlants">${done.length?done.map(p=>`<div class="trophy"><div class="bigPlant">${p.plant==='pink'?'🌺':'🌿'}</div><div class="plaque">${p.brand}<br><b>${p.name}</b><br>PANNED</div></div>`).join(''):`<div class="empty" style="grid-column:1/-1">Your finished products will grow into this garden 🌱</div>`}</div><div class="celebrate">Look at you go! 🌸<br>Every pan is a win.</div></div>${bottom()}</section>`}
 function calendar(){let d=state.month,y=d.getFullYear(),m=d.getMonth(),first=new Date(y,m,1).getDay(),last=new Date(y,m+1,0).getDate(),cells=''.padStart(first,' ').split('').map(()=>'<span></span>').join('');for(let day=1;day<=last;day++){let key=`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`,has=history.some(h=>h.date.startsWith(key));cells+=`<button class="day ${has?'has':''} ${state.selectedDate===key?'sel':''}" onclick="state.selectedDate='${key}';render()">${day}</button>`}let logs=history.filter(h=>h.date.startsWith(state.selectedDate));return `<section class="screen"><div class="topbar"><button class="iconBtn back" onclick="nav('garden')">‹</button><b>${d.toLocaleString('default',{month:'long'})} ${y}</b><button class="iconBtn" onclick="state.month=new Date(y,m+1,1);render()">›</button></div><div class="calendar"><div class="calHead"><button class="iconBtn" onclick="state.month=new Date(y,m-1,1);render()">‹</button><span>Usage Calendar</span><span></span></div><div class="week">${['S','M','T','W','T','F','S'].map(x=>`<span>${x}</span>`).join('')}</div><div class="days">${cells}</div></div><div class="dayLog"><b>${state.selectedDate}</b>${logs.length?logs.map(h=>{let p=products.find(x=>x.id===h.id);return p?`<div class="logRow">${productVisual(p)}<span>${p.name}</span><b style="margin-left:auto">+1 use</b></div>`:''}).join(''):'<div class="empty">No uses logged this day.</div>'}</div></section>`}
-function newProduct(){state.edit={id:'custom-'+Date.now(),brand:'',name:'',category:'Lips',shade:'#b36f78',goal:settings.defaultGoal,uses:0,active:true,plant:'pink',notes:''};state.view='edit';render()}
-function editProduct(id){state.edit={...products.find(x=>x.id===id)};state.view='edit';render()}
-function formView(){let p=state.edit;return `<section class="screen"><div class="topbar"><button class="iconBtn back" onclick="${products.some(x=>x.id===p.id)?`detail('${p.id}')`:`nav('collection')`}">‹</button><b>${products.some(x=>x.id===p.id)?'Edit Product':'Add Product'}</b><button class="saveBtn" onclick="saveForm()">Save</button></div><div class="form"><div class="previewBox">${productVisual(p,true)}<span style="font-size:70px">${p.plant==='pink'?'🌸':'🌿'}</span></div>${field('Name',`<input id="fName" value="${esc(p.name)}">`)}${field('Brand',`<input id="fBrand" value="${esc(p.brand)}">`)}${field('Category',`<select id="fCat">${['Lips','Blush','Eyes','Base','Other'].map(x=>`<option ${p.category===x?'selected':''}>${x}</option>`).join('')}</select>`)}${field('Goal (uses)',`<input id="fGoal" type="number" value="${p.goal}">`)}${field('Active project pan',`<select id="fActive"><option value="true" ${p.active?'selected':''}>Active</option><option value="false" ${!p.active?'selected':''}>Reserve</option></select>`)}<div class="field"><label>Choose a Plant</label><div class="plantChoices"><button class="plantChoice ${p.plant==='pink'?'on':''}" onclick="state.edit.plant='pink';render()">🌸</button><button class="plantChoice ${p.plant==='green'?'on':''}" onclick="state.edit.plant='green';render()">🌿</button></div></div>${field('Notes',`<textarea id="fNotes">${esc(p.notes||'')}</textarea>`)}</div></section>`}
+function newProduct(){pendingImage=null;state.edit={id:'custom-'+Date.now(),brand:'',name:'',category:'Lips',shade:'#b36f78',goal:settings.defaultGoal,uses:0,active:true,plant:'pink',notes:''};state.view='edit';render()}
+function editProduct(id){pendingImage=null;state.edit={...products.find(x=>x.id===id)};state.view='edit';render()}
+function formView(){
+ let p=state.edit?{...products.find(x=>x.id===state.edit)}:{brand:'',name:'',category:'Lips',goal:settings.defaultGoal||30,notes:'',active:true,plant:'pink',image:''};
+ if(!p)return garden();
+ if(pendingImage!==null)p.image=pendingImage;
+ let preview=p.image?`<div class="editPhotoPreview"><img src="${p.image}" alt=""><button type="button" onclick="removeImage()">Remove</button></div>`:`<div class="editPhotoPreview emptyPhoto">Add a product photo ✨</div>`;
+ return `<section class="screen"><div class="topbar"><button class="iconBtn back" onclick="nav(state.edit?'detail':'garden')">‹</button><b>${state.edit?'Edit Product':'Add Product'}</b><button class="savePill" onclick="saveForm()">Save</button></div>
+ <div class="formCard">
+ ${preview}
+ <div class="imageActions">
+   <label class="imageBtn">📷 Upload Photo<input id="photoUpload" type="file" accept="image/*" capture="environment" onchange="loadPhoto(this)" hidden></label>
+   <button class="imageBtn" onclick="findImage()">🔎 Find Image</button>
+ </div>
+ <label>Image URL<input id="imageUrl" value="${p.image&&p.image.startsWith('http')?p.image:''}" placeholder="Paste a direct image URL"></label>
+ <button class="softBtn" onclick="applyImageUrl()">Use pasted image</button>
+ <label>Name<input id="name" value="${p.name||''}" placeholder="Cloud Paint — Dusk"></label>
+ <label>Brand<input id="brand" value="${p.brand||''}" placeholder="Glossier"></label>
+ <label>Category<select id="category">${['Lips','Blush','Eyes','Base','Other'].map(c=>`<option ${p.category===c?'selected':''}>${c}</option>`).join('')}</select></label>
+ <label>Goal (uses)<input id="goal" type="number" min="1" value="${p.goal||30}"></label>
+ <div class="plantChooser"><b>Choose a Plant</b><div>${[['pink','🌸'],['green','🌿'],['gold','🌼'],['slate','🪻']].map(([x,i])=>`<button class="${p.plant===x?'on':''}" onclick="choosePlant('${x}')">${i}</button>`).join('')}</div></div>
+ <label>Notes<textarea id="notes">${p.notes||''}</textarea></label>
+ <label class="activeCheck"><input id="active" type="checkbox" ${p.active?'checked':''}> Active Project Pan</label>
+ </div></section>`;
+}
 function field(l,c){return `<div class="field"><label>${l}</label>${c}</div>`} function esc(s=''){return String(s).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}
-function saveForm(){let p={...state.edit,name:$('#fName').value,brand:$('#fBrand').value,category:$('#fCat').value,goal:+$('#fGoal').value||30,active:$('#fActive').value==='true',notes:$('#fNotes').value};let i=products.findIndex(x=>x.id===p.id);if(i>=0)products[i]=p;else products.unshift(p);save();detail(p.id)}
+function saveForm(){
+ let existing=state.edit?products.find(x=>x.id===state.edit):null;
+ let p=existing||{id:'custom-'+Date.now(),uses:0};
+ p.name=document.getElementById('name').value.trim()||'Untitled Product';
+ p.brand=document.getElementById('brand').value.trim()||'Unknown';
+ p.category=document.getElementById('category').value;
+ p.goal=Math.max(1,+document.getElementById('goal').value||30);
+ p.notes=document.getElementById('notes').value;
+ p.active=document.getElementById('active').checked;
+ p.plant=p.plant||'pink';
+ let url=document.getElementById('imageUrl')?.value.trim();
+ if(pendingImage!==null)p.image=pendingImage;
+ else if(url)p.image=url;
+ if(!existing)products.unshift(p);
+ pendingImage=null; save(); state.selected=p.id; state.edit=null; nav('detail');
+}
 function settingsView(){return `<section class="screen"><div class="topbar"><button class="iconBtn back" onclick="nav('garden')">‹</button><b>Appearance</b><span></span></div><div class="themeGrid">${[['pink','🌸','Pink & Green','#efd0cf'],['sage','🌿','Sage','#dbe6d8'],['warm','🌼','Warm','#ecd6aa'],['slate','🪻','Slate','#cfd8df']].map(([id,ico,n,bg])=>`<button class="theme ${state.theme===id?'on':''}" onclick="setTheme('${id}')"><div class="themePlant" style="background:${bg}">${ico}</div>${n}</button>`).join('')}</div><div class="settings"><div class="setting"><span>Use Seasonal Icons</span><button class="toggle ${settings.seasonal?'on':''}" onclick="settings.seasonal=!settings.seasonal;save();render()"><i></i></button></div><div class="setting"><span>Default use goal</span><b>${settings.defaultGoal}</b></div><div class="setting"><span>Show celebrations</span><button class="toggle ${settings.celebrate?'on':''}" onclick="settings.celebrate=!settings.celebrate;save();render()"><i></i></button></div><div class="setting"><span>Gentle reminders</span><button class="toggle ${settings.reminders?'on':''}" onclick="settings.reminders=!settings.reminders;save();render()"><i></i></button></div></div><div class="sectionHead"><h2>Data</h2></div><div class="settings"><div class="setting" onclick="exportData()"><span>Export Data (JSON)</span><b>⇩</b></div><label class="setting"><span>Import Data</span><b>⇧</b><input type="file" accept="application/json" style="display:none" onchange="importData(this)"></label></div><p class="codeNote">Your collection and use history are stored locally in this browser. Export a backup occasionally.</p></section>`}
 function setTheme(t){state.theme=t;let root=document.documentElement;if(t==='sage'){root.style.setProperty('--pink','#91a68d');root.style.setProperty('--bg','#eef2e9')}else if(t==='warm'){root.style.setProperty('--pink','#d69b69');root.style.setProperty('--bg','#f8efe0')}else if(t==='slate'){root.style.setProperty('--pink','#8297a5');root.style.setProperty('--bg','#edf0f2')}else{root.style.setProperty('--pink','#d98791');root.style.setProperty('--bg','#f8eee7')}render()}
+
+let pendingImage=null;
+function loadPhoto(input){
+ const f=input.files&&input.files[0]; if(!f)return;
+ if(f.size>4*1024*1024){alert('Please choose an image under 4 MB so Safari can save it reliably.');return}
+ const r=new FileReader(); r.onload=()=>{pendingImage=r.result; render();}; r.readAsDataURL(f);
+}
+function applyImageUrl(){let v=document.getElementById('imageUrl')?.value.trim();if(!v)return;pendingImage=v;render()}
+function removeImage(){pendingImage='';render()}
+function findImage(){
+ let b=document.getElementById('brand')?.value||'', n=document.getElementById('name')?.value||'';
+ let q=encodeURIComponent((b+' '+n+' product').trim());
+ window.open('https://www.google.com/search?tbm=isch&q='+q,'_blank');
+}
+
 function exportData(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({products,history,settings},null,2)],{type:'application/json'}));a.download='pan-garden-backup.json';a.click()}
 function importData(inp){let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);products=d.products||products;history=d.history||history;settings=d.settings||settings;save();render()}catch(e){alert('That backup file could not be read.')}};r.readAsText(inp.files[0])}
 function render(){let html=state.view==='garden'?garden():state.view==='collection'?collection():state.view==='detail'?detailView():state.view==='edit'?formView():state.view==='stats'?stats():state.view==='panned'?panned():state.view==='calendar'?calendar():settingsView();$('#app').innerHTML=`<main class="shell">${html}</main>`}
