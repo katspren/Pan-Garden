@@ -1,12 +1,16 @@
-# Pan Garden v5
+# Pan Garden v6
 
-Updates:
-- Product photo field used throughout the UI
-- Upload from Photo Library / Camera / Files
-- Paste a direct image URL
-- Find Image button opens an image search using brand + product name
-- Uploaded images are saved with the product in browser storage
-- Layered flower/foliage Garden and Panned Garden styling
-- Existing full makeup collection remains preloaded
+Clean unified build. Look for the `Pan Garden v6` badge in the upper-right of the live app.
 
-For GitHub Pages, upload all files to the repository root and replace the old versions.
+Includes:
+- full preloaded makeup collection
+- real product image field
+- Upload Photo
+- Find Image search
+- Paste Image URL
+- product photos throughout cards/details
+- layered flower Garden + Panned Garden
+- project-pan logging, stats, calendar, themes
+- bumped service worker cache
+
+Upload every file in this folder to the ROOT of the GitHub repository, replacing older files.

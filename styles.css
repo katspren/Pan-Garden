@@ -24,3 +24,6 @@
 .editPhotoPreview button{position:absolute;right:10px;bottom:10px;border:0;border-radius:999px;padding:8px 12px;background:#fff8}
 .emptyPhoto{color:#8d7770;border:1px dashed #d8bdb5}
 .imageActions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:10px 0}.imageBtn,.softBtn{border:0;border-radius:14px;padding:12px;background:#e7eee4;color:#49614d;text-align:center;font-weight:700}.softBtn{width:100%;background:#f3dfdf;color:#845e63;margin-bottom:12px}
+
+#versionBadge{position:fixed;right:10px;top:calc(8px + env(safe-area-inset-top));z-index:9999;background:#fff9;border:1px solid #ead8d1;backdrop-filter:blur(8px);padding:5px 8px;border-radius:999px;font:700 10px/1 ui-rounded,-apple-system,sans-serif;color:#806d68;pointer-events:none}
+.photoFallback{display:none;width:100%;height:100%;place-items:center;font-size:32px}
