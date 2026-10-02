@@ -1,1 +1,9 @@
-{"name":"Project Pan Garden","short_name":"Pan Garden","start_url":"./index.html","display":"standalone","background_color":"#f8efe8","theme_color":"#f7eee8"}
+{
+  "name": "Project Pan Garden",
+  "short_name": "Pan Garden",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7eee7",
+  "theme_color": "#f7eee7"
+}
