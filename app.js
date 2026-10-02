@@ -6,12 +6,14 @@ function save(){localStorage.setItem('panGardenV4',JSON.stringify({products,hist
 function pct(p){return Math.min(100,Math.round((p.uses||0)/Math.max(1,p.goal)*100))}
 function plant(p){let x=pct(p);const fl={pink:'🌺',green:'🌻',gold:'🌼',slate:'🪻'}[p&&p.plant]||'🌸';if(x>=100)return fl;if(x>=67)return '🌷';if(x>=34)return '🪴';return '🌱'}
 function type(p){if(p.category==='Blush')return p.brand==='Glossier'?'tube':'blush';if(p.category==='Lips')return 'lip';if(p.category==='Eyes')return 'eye';if(p.category==='Base')return 'base';return 'tube'}
+function stageOf(p){let x=pct(p);if(x>=100)return 4;if(x>=67)return 3;if(x>=34)return 2;if(x>0)return 1;return 0}
+function cleanName(n){return String(n||'').replace(/\s*[—–-]\s*/g,' ').trim()}
 function productVisual(p,big=false){
   if(p && p.image){
     const safe=esc(p.image);
-    return `<div class="productPhoto ${big?'big':''}"><img src="${safe}" alt="${esc((p.brand||'')+' '+(p.name||''))}" onerror="this.closest('.productPhoto').classList.add('broken');this.remove()"><span class="photoFallback">💄</span></div>`;
+    return `<div class="productPhoto ${big?'big':''}"><img src="${safe}" alt="${esc((p.brand||'')+' '+(p.name||''))}" onerror="this.closest('.productPhoto').classList.add('broken');this.remove()"><span class="photoFallback">${productSVG(type(p),p&&p.shade)}</span></div>`;
   }
-  return `<span class="prod ${type(p)} ${big?'big':''}" style="--shade:${(p&&p.shade)||'#b97878'}"></span>`;
+  return `<div class="productArt ${big?'big':''}">${productSVG(type(p),p&&p.shade)}</div>`;
 }
 function field(l,c){return `<div class="field"><label>${l}</label>${c}</div>`} function esc(s=''){return String(s).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}
 function saveForm(){
@@ -85,14 +87,17 @@ function navBar(active){
   <button class="navBtn ${active==='panned'?'on':''}" onclick="nav('panned')"><span>💗</span>Panned</button>
  </nav>`;
 }
-function heroPlant(side,color){return `<div class="plantScene ${side}"><div class="plantPot ${color}"><span class="face">◡‿◡</span></div><span class="stem"></span><span class="leaf l1"></span><span class="leaf l2"></span><span class="leaf l3"></span><span class="blossom">${color==='pink'?'🌸':'🌼'}</span></div>`}
+function heroPlant(side,color,stage){return `<div class="heroPot ${side}">${plantSVG(color,stage,128)}</div>`}
 function card(p){
  return `<div class="productCard" onclick="openDetail('${p.id}')">
-   <div class="brand">${esc(p.brand)}</div>
-   <div class="pname">${esc(p.name)}</div>
-   <div class="visualRow">${productVisual(p)}<span class="miniPlant">${plant(p)}</span></div>
-   <div class="progress"><i style="width:${pct(p)}%"></i></div>
-   <div class="useRow"><span>${p.uses||0} / ${p.goal}</span><button class="tinyPlus" onclick="event.stopPropagation();addUse('${p.id}')">+</button></div>
+   <div class="cardMain">
+     <div class="cardImg">${productVisual(p)}</div>
+     <div class="cardInfo">
+       <div class="cardName"><b>${esc(p.brand)}</b>${esc(cleanName(p.name))}</div>
+       <div class="cardPot">${plantSVG(p.plant,stageOf(p),56)}</div>
+     </div>
+   </div>
+   <div class="cardProg"><div class="progress"><i style="width:${pct(p)}%"></i></div><span>${p.uses||0} / ${p.goal}</span></div>
  </div>`;
 }
 function grid(list){return `<div class="productGrid">${list.map(card).join('')}</div>`}
@@ -110,8 +115,7 @@ function garden(){
  return `<section class="screen">
   <div class="gardenHero">
    <div class="topbar"><div class="titleBlock"><h1>Project Pan</h1><p>small steps, happy pans ✨</p></div><div style="display:flex;gap:6px"><button class="iconBtn" onclick="nav('calendar')">📅</button><button class="iconBtn" onclick="nav('settings')">⚙️</button></div></div>
-   ${heroPlant('sceneLeft','pink')}
-   ${heroPlant('sceneRight','green')}
+   <div class="heroPlants">${heroPlant('left','pink',4)}${heroPlant('right','green',2)}</div>
   </div>
   <div class="filters">${filterChips([['active','Active'],['all','All'],['finished','Finished'],['category','By Category']],f,'setFilter')}</div>
   ${body}
@@ -129,7 +133,7 @@ function collection(){
     <div class="rowMeta">${p.uses||0} / ${p.goal} uses · ${p.active?'Active':'Reserve'}</div>
     <div class="progress"><i style="width:${pct(p)}%"></i></div>
    </div>
-   <span class="rowPlant">${plant(p)}</span>
+   <span class="rowPlant">${plantSVG(p.plant,stageOf(p),38)}</span>
    <span class="chev">›</span>
   </div>`).join('');
  return `<section class="screen">
@@ -144,13 +148,13 @@ function collection(){
 function detailView(){
  let p=products.find(x=>x.id===state.selected); if(!p)return garden();
  let g=p.goal||30;
- let defs=[[0,'🫙','0'],[Math.round(g/3),'🌱',String(Math.round(g/3))],[Math.round(2*g/3),'🪴',String(Math.round(2*g/3))],[g,'🌷',String(g)],[g,'🌺','Panned']];
- let stages=defs.map(([thr,ico,lab],i)=>{let reached=i===4?(p.uses||0)>=g:(p.uses||0)>=thr;return `<div class="stage" style="opacity:${reached?1:.35}">${ico}<small>${lab}</small></div>`}).join('');
+ let defs=[[0,'0'],[Math.round(g/3),String(Math.round(g/3))],[Math.round(2*g/3),String(Math.round(2*g/3))],[g,String(g)],[g,'Panned']];
+ let stages=defs.map(([thr,lab],i)=>{let reached=i===4?(p.uses||0)>=g:(p.uses||0)>=thr;return `<div class="stage" style="opacity:${reached?1:.4}">${plantSVG(p.plant,i,38)}<small>${lab}</small></div>`}).join('');
  return `<section class="screen">
   <div class="topbar"><button class="iconBtn back" onclick="nav('garden')">‹</button><span></span><button class="iconBtn" style="width:auto;padding:0 14px;background:none;color:var(--green);font-weight:700" onclick="openEdit('${p.id}')">Edit</button></div>
-  <div class="detailHero">${productVisual(p,true)}<span class="miniPlant" style="font-size:72px">${plant(p)}</span></div>
+  <div class="detailHero">${productVisual(p,true)}<div class="detailPot">${plantSVG(p.plant,stageOf(p),124)}</div></div>
   <div class="detailCard">
-   <h1 style="margin:0 0 8px;font-size:22px;line-height:1.2">${esc(p.brand)} ${esc(p.name)}</h1>
+   <h1 style="margin:0 0 8px;font-size:22px;line-height:1.2">${esc(p.brand)} ${esc(cleanName(p.name))}</h1>
    <div class="tags"><span class="tag">${esc(p.category)}</span><span class="tag">${esc(p.brand)}</span><span class="tag">${p.active?'Active Pan':'Reserve'}</span></div>
    <div class="bigCount">${p.uses||0} / ${g} uses</div>
    <div class="progress"><i style="width:${pct(p)}%"></i></div>
@@ -169,23 +173,30 @@ function formView(){
  let img=pendingImage!==null?pendingImage:(p.image||'');
  let pick=state.plantPick||p.plant||'pink';
  let cats=['Lips','Blush','Eyes','Base','Other'];
- let plants=[['pink','🌸'],['green','🌿'],['gold','🌼'],['slate','🪻']];
  let urlVal=(p.image&&pendingImage===null&&!String(p.image).startsWith('data:'))?esc(p.image):'';
  return `<section class="screen">
   <div class="topbar"><button class="iconBtn back" onclick="nav('${existing?'detail':'garden'}')">‹</button><div class="titleBlock"><h1 style="font-size:20px">${existing?'Edit Product':'Add Product'}</h1></div><button class="saveBtn" onclick="saveForm()">Save</button></div>
   <div class="form">
-   <div class="editPhotoPreview">${img?`<img src="${esc(img)}" alt="">`:`<span class="emptyPhoto">📷 Add a product photo</span>`}${img?`<button type="button" onclick="removeImage()">Remove</button>`:''}</div>
+   <div class="addTop">
+    <div class="addThumb">
+     ${img?`<img src="${esc(img)}" alt="">`:productVisual(p)}
+     <label class="camBadge" title="Upload photo">📷<input type="file" accept="image/*" style="display:none" onchange="loadPhoto(this)"></label>
+     ${img?`<button type="button" class="thumbRemove" onclick="removeImage()">×</button>`:''}
+    </div>
+    <div class="addTopFields">
+     ${field('Name',`<input id="name" value="${esc(p.name)}" placeholder="e.g. Cloud Paint Dusk">`)}
+     ${field('Brand',`<input id="brand" value="${esc(p.brand)}" placeholder="e.g. Glossier">`)}
+    </div>
+   </div>
+   ${field('Category',`<select id="category">${cats.map(c=>`<option ${p.category===c?'selected':''}>${c}</option>`).join('')}</select>`)}
+   ${field('Goal (uses)',`<div class="stepper"><button type="button" onclick="stepGoal(-1)">−</button><input id="goal" type="number" min="1" value="${p.goal}"><button type="button" onclick="stepGoal(1)">+</button></div>`)}
+   ${field('Start Date',`<input id="startDate" type="date" value="${esc(p.dateAdded||today)}">`)}
    <div class="imageActions">
     <button type="button" class="imageBtn" onclick="findImage()">🔍 Find Image</button>
     <label class="imageBtn">📤 Upload Photo<input type="file" accept="image/*" style="display:none" onchange="loadPhoto(this)"></label>
    </div>
-   ${field('Name',`<input id="name" value="${esc(p.name)}" placeholder="e.g. Cloud Paint Dusk">`)}
-   ${field('Brand',`<input id="brand" value="${esc(p.brand)}" placeholder="e.g. Glossier">`)}
-   ${field('Category',`<select id="category">${cats.map(c=>`<option ${p.category===c?'selected':''}>${c}</option>`).join('')}</select>`)}
-   ${field('Goal (uses)',`<div class="stepper"><button type="button" onclick="stepGoal(-1)">−</button><input id="goal" type="number" min="1" value="${p.goal}"><button type="button" onclick="stepGoal(1)">+</button></div>`)}
-   ${field('Start Date',`<input id="startDate" type="date" value="${esc(p.dateAdded||today)}">`)}
    ${field('Paste Image URL',`<input id="imageUrl" placeholder="https://…" value="${urlVal}"><button type="button" class="softBtn" style="margin-top:8px" onclick="applyImageUrl()">Use this URL</button>`)}
-   <div class="field"><label>Choose a Plant</label><div class="plantChoices">${plants.map(([k,ic])=>`<button type="button" class="plantChoice ${pick===k?'on':''}" onclick="setPlant('${k}')">${ic}</button>`).join('')}</div></div>
+   <div class="field"><label>Choose a Plant</label><div class="plantChoices">${['pink','green','gold','slate'].map(k=>`<button type="button" class="plantChoice ${pick===k?'on':''}" onclick="setPlant('${k}')">${plantSVG(k,4,50)}</button>`).join('')}</div></div>
    <label class="field" style="display:flex;justify-content:space-between;align-items:center"><span>Active project pan</span><input type="checkbox" id="activeToggle" ${p.active?'checked':''} style="width:auto"></label>
    ${field('Notes',`<textarea id="notes" placeholder="Shade notes, pairing ideas…">${esc(p.notes)}</textarea>`)}
   </div>
@@ -224,7 +235,7 @@ function stats(){
 
 function panned(){
  let done=products.filter(p=>pct(p)>=100);
- let plantsHtml=done.map(p=>`<div class="trophy"><div class="bigPlant">${plant(p)}</div><div class="plaque"><b>${esc(p.brand)} ${esc(p.name)}</b><br>PANNED${p.dateFinished?' · '+p.dateFinished:''}</div></div>`).join('');
+ let plantsHtml=done.map(p=>`<div class="trophy"><div class="bigPlant">${plantSVG(p.plant,4,120)}</div><div class="plaque"><b>${esc(p.brand)} ${esc(cleanName(p.name))}</b><br>PANNED${p.dateFinished?' · '+p.dateFinished:''}</div></div>`).join('');
  return `<section class="screen">
   <div class="pannedScene">
    <div class="topbar"><button class="iconBtn back" onclick="nav('garden')">‹</button><div class="titleBlock" style="text-align:center;flex:1"><h1>Panned Garden</h1></div><span style="width:38px"></span></div>
@@ -250,7 +261,7 @@ function calendar(){
  }
  let dayEvents=history.filter(h=>h.date===state.selectedDate);
  let agg={}; dayEvents.forEach(h=>{let p=products.find(x=>x.id===h.productId);let k=p?p.id:h.productId;agg[k]=agg[k]||{p:p,n:0};agg[k].n+=(h.delta||1)});
- let logRows=Object.keys(agg).map(k=>{let o=agg[k];return `<div class="logRow"><span class="miniPlant" style="font-size:22px">${o.p?plant(o.p):'💄'}</span><span style="flex:1">${o.p?esc(o.p.brand)+' '+esc(o.p.name):'Unknown product'}</span><b>+${o.n} use${o.n>1?'s':''}</b></div>`}).join('');
+ let logRows=Object.keys(agg).map(k=>{let o=agg[k];return `<div class="logRow"><span class="logThumb">${o.p?productVisual(o.p):''}</span><span style="flex:1">${o.p?esc(o.p.brand)+' '+esc(cleanName(o.p.name)):'Unknown product'}</span><b>+${o.n} use${o.n>1?'s':''}</b></div>`}).join('');
  let selLabel=new Date(state.selectedDate+'T00:00:00').toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric'});
  return `<section class="screen">
   <div class="topbar"><button class="iconBtn back" onclick="nav('garden')">‹</button><div class="titleBlock" style="text-align:center;flex:1"><h1 style="font-size:19px">Calendar</h1></div><span style="width:38px"></span></div>
