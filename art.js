@@ -26,11 +26,14 @@
     return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
   }
 
+  /* Colors matched to LEGO Botanicals Rocking Plants (11506: Bright Pink +
+     Spring Yellowish-Green) and Happy Plants (10349: Yellow + Blue) pots.
+     Green pot gets lavender blooms, echoing "Lumi" (purple buds) in the set. */
   const PALETTE={
-    pink :{l:'#f4bec3',b:'#e69ba3',d:'#cf7a85',nub:'#dd8e97',petal:'#f09cae',petal2:'#e97f96',center:'#f6d36b'},
-    green:{l:'#b1c998',b:'#92ae79',d:'#72915c',nub:'#819c6a',petal:'#f0afb8',petal2:'#e78fa0',center:'#f6d36b'},
-    gold :{l:'#eedcab',b:'#ddc47f',d:'#c4a85b',nub:'#d3b567',petal:'#f1b24f',petal2:'#e78f3f',center:'#e07a3b'},
-    slate:{l:'#c6d1dd',b:'#a0b1c2',d:'#7f93a7',nub:'#8fa1b4',petal:'#b7a9e6',petal2:'#9d8ede',center:'#f3d774'}
+    pink :{l:'#f1c9dc',b:'#e4adc8',d:'#ca8dab',nub:'#dd9fbd',petal:'#f09cae',petal2:'#e97f96',center:'#f6d36b'},
+    green:{l:'#ddeca7',b:'#c6dd86',d:'#a4c05c',nub:'#b7d073',petal:'#b7a9e6',petal2:'#9d8ede',center:'#efd36a'},
+    gold :{l:'#f8e488',b:'#f0d24e',d:'#d2b134',nub:'#e3c247',petal:'#f0a24f',petal2:'#e7843f',center:'#e07a3b'},
+    slate:{l:'#a9dbe9',b:'#73c3d6',d:'#49a6bd',nub:'#62b7cb',petal:'#f0a7bb',petal2:'#e98aa0',center:'#f6d36b'}
   };
   const LEAF='#6f9b5f', LEAFL='#8bb678', STEM='#6a9458';
 
@@ -40,7 +43,7 @@
       +`<path d="M3 -3 C 9 -11 15 -17 19 -21" stroke="${LEAFL}" stroke-width="1.6" fill="none" stroke-linecap="round"/></g>`;
   }
   function stem(x2,y2,bend){
-    return `<path d="M50 68 Q ${50+(bend||0)} ${(68+y2)/2} ${x2} ${y2}" stroke="${STEM}" stroke-width="4.6" fill="none" stroke-linecap="round"/>`;
+    return `<path d="M55 56 Q ${55+(bend||0)} ${(56+y2)/2} ${x2} ${y2}" stroke="${STEM}" stroke-width="4.4" fill="none" stroke-linecap="round"/>`;
   }
   function bud(x,y,P){
     return `<g transform="translate(${x} ${y})"><path d="M0 3 C -6 -2 -6 -13 0 -17 C 6 -13 6 -2 0 3 Z" fill="${P.petal}"/>`
@@ -61,25 +64,25 @@
     const P=PALETTE[color]||PALETTE.pink;
     const g=uid('pg');
     let fol='';
-    if(stage<=0){ fol=leaf(50,64,-24,0.68)+leaf(50,64,24,0.68); }
-    else if(stage===1){ fol=stem(47,47,-3)+leaf(47,53,-42,0.82)+leaf(49,50,38,0.8); }
-    else if(stage===2){ fol=stem(43,41,-6)+stem(58,45,6)+leaf(43,47,-46,1)+leaf(45,42,26,0.9)+leaf(58,51,48,0.95)+leaf(58,46,70,0.7); }
-    else if(stage===3){ fol=stem(44,40,-6)+stem(58,43,6)+leaf(44,51,-46,1)+leaf(58,53,48,0.9)+bud(44,37,P)+bud(58,40,P); }
-    else { fol=stem(43,37,-7)+stem(58,41,7)+stem(51,31,0)+leaf(44,53,-47,1)+leaf(59,55,49,0.95)+leaf(42,47,-74,0.68)+bloom(43,34,1.05,P)+bloom(58,37,0.92,P)+bloom(51,29,1.18,P); }
-    return `<svg class="plantArt" viewBox="0 0 100 122" width="${size}" height="${Math.round(size*1.22)}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">`
+    if(stage<=0){ fol=leaf(55,52,-24,0.6)+leaf(55,52,24,0.6); }
+    else if(stage===1){ fol=stem(52,38,-3)+leaf(52,44,-42,0.78)+leaf(53,41,38,0.76); }
+    else if(stage===2){ fol=stem(49,32,-6)+stem(64,36,6)+leaf(49,38,-46,0.95)+leaf(50,33,26,0.86)+leaf(64,42,48,0.9)+leaf(64,37,70,0.64); }
+    else if(stage===3){ fol=stem(50,32,-6)+stem(63,34,6)+leaf(50,42,-46,0.95)+leaf(63,44,48,0.86)+bud(50,28,P)+bud(63,31,P); }
+    else { fol=stem(49,28,-7)+stem(63,31,7)+stem(56,21,0)+leaf(50,44,-47,0.95)+leaf(64,46,49,0.9)+leaf(48,38,-74,0.62)+bloom(49,25,1,P)+bloom(63,28,0.88,P)+bloom(56,18,1.05,P); }
+    return `<svg class="plantArt" viewBox="0 0 110 102" width="${size}" height="${Math.round(size*0.93)}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">`
       +`<defs>`
       +`<linearGradient id="${g}b" x1="0" y1="0" x2="0.85" y2="1"><stop offset="0" stop-color="${P.l}"/><stop offset="1" stop-color="${P.d}"/></linearGradient>`
-      +`<radialGradient id="${g}h" cx="0.34" cy="0.28" r="0.85"><stop offset="0" stop-color="#ffffff66"/><stop offset="0.55" stop-color="#ffffff00"/></radialGradient>`
+      +`<radialGradient id="${g}h" cx="0.34" cy="0.26" r="0.85"><stop offset="0" stop-color="#ffffff66"/><stop offset="0.55" stop-color="#ffffff00"/></radialGradient>`
       +`</defs>`
-      +`<ellipse cx="50" cy="116" rx="29" ry="5.5" fill="#00000012"/>`
+      +`<ellipse cx="55" cy="97" rx="31" ry="5" fill="#00000012"/>`
       +fol
-      +`<circle cx="77" cy="92" r="8.5" fill="${P.nub}"/><circle cx="77" cy="92" r="8.5" fill="url(#${g}h)"/>`
-      +`<rect x="24" y="62" width="52" height="52" rx="16" fill="url(#${g}b)"/>`
-      +`<rect x="24" y="62" width="52" height="52" rx="16" fill="url(#${g}h)"/>`
-      +`<ellipse cx="41.5" cy="90" rx="3.1" ry="4.1" fill="#3f2e2a"/><ellipse cx="58.5" cy="90" rx="3.1" ry="4.1" fill="#3f2e2a"/>`
-      +`<circle cx="42.7" cy="88.4" r="1.05" fill="#fff"/><circle cx="59.7" cy="88.4" r="1.05" fill="#fff"/>`
-      +`<path d="M44 98 Q50 103.5 56 98" stroke="#3f2e2a" stroke-width="2.3" fill="none" stroke-linecap="round"/>`
-      +`<ellipse cx="36.5" cy="97" rx="3.1" ry="1.9" fill="#ffffff33"/><ellipse cx="63.5" cy="97" rx="3.1" ry="1.9" fill="#ffffff33"/>`
+      +`<circle cx="84" cy="74" r="8.5" fill="${P.nub}"/><circle cx="84" cy="74" r="8.5" fill="url(#${g}h)"/>`
+      +`<rect x="27" y="52" width="56" height="44" rx="15" fill="url(#${g}b)"/>`
+      +`<rect x="27" y="52" width="56" height="44" rx="15" fill="url(#${g}h)"/>`
+      +`<ellipse cx="46.5" cy="74" rx="3.1" ry="4" fill="#3f2e2a"/><ellipse cx="63.5" cy="74" rx="3.1" ry="4" fill="#3f2e2a"/>`
+      +`<circle cx="47.7" cy="72.4" r="1.05" fill="#fff"/><circle cx="64.7" cy="72.4" r="1.05" fill="#fff"/>`
+      +`<path d="M49 82 Q55 87.5 61 82" stroke="#3f2e2a" stroke-width="2.3" fill="none" stroke-linecap="round"/>`
+      +`<ellipse cx="41" cy="81" rx="3.1" ry="1.9" fill="#ffffff33"/><ellipse cx="69" cy="81" rx="3.1" ry="1.9" fill="#ffffff33"/>`
       +`</svg>`;
   };
 
