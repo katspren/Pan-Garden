@@ -113,7 +113,7 @@ function garden(){
   body=visible.length?grid(visible):emptyState(f==='finished'?'No panned products yet — keep going! 🌱':'No active pans yet. Tap + to add one.');
  }
  return `<section class="screen">
-  <div class="gardenHero">
+  <div class="gardenHero">${sceneSVG()}
    <div class="topbar"><div class="titleBlock"><h1>Project Pan</h1><p>small steps, happy pans ✨</p></div><div style="display:flex;gap:6px"><button class="iconBtn" onclick="nav('calendar')">📅</button><button class="iconBtn" onclick="nav('settings')">⚙️</button></div></div>
    <div class="heroPlants">${heroPlant('left','pink',4)}${heroPlant('right','green',2)}</div>
   </div>
@@ -237,7 +237,7 @@ function panned(){
  let done=products.filter(p=>pct(p)>=100);
  let plantsHtml=done.map(p=>`<div class="trophy"><div class="bigPlant">${plantSVG(p.plant,4,120)}</div><div class="plaque"><b>${esc(p.brand)} ${esc(cleanName(p.name))}</b><br>PANNED${p.dateFinished?' · '+p.dateFinished:''}</div></div>`).join('');
  return `<section class="screen">
-  <div class="pannedScene">
+  <div class="pannedScene">${sceneSVG('grass')}
    <div class="topbar"><button class="iconBtn back" onclick="nav('garden')">‹</button><div class="titleBlock" style="text-align:center;flex:1"><h1>Panned Garden</h1></div><span style="width:38px"></span></div>
    ${done.length?`<div class="pannedPlants">${plantsHtml}</div>`:emptyState('No panned products yet. Every use gets you closer! 🌱')}
    ${done.length?`<div class="celebrate">Look at you go! 🌸<br>Every pan is a win.</div>`:''}

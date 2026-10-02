@@ -126,4 +126,42 @@
     }
     return `<svg class="prodArt" viewBox="0 0 120 170" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${defs}${shadow}${body}</svg>`;
   };
+
+  /* -------- garden background scene --------
+     A warm, sunlit illustration (soft light rays, blurred background foliage
+     and flowers, bokeh, and a surface for the pots to sit on). variant
+     'grass' gives a green lawn for the Panned Garden. */
+  function sceneLeaf(x,y,c,s){s=s||1;return `<g transform="translate(${x} ${y}) scale(${s})">`
+    +`<path d="M0 0 C -7 -34 -30 -48 -42 -53 C -35 -22 -16 -4 0 0 Z" fill="${c}"/>`
+    +`<path d="M0 0 C 7 -36 31 -50 44 -55 C 35 -22 16 -4 0 0 Z" fill="${c}"/>`
+    +`<path d="M0 2 C -2 -42 -4 -60 0 -70 C 4 -60 2 -42 0 2 Z" fill="${c}"/></g>`;}
+  function sceneFlower(x,y,c,r,ctr){let p='';for(let i=0;i<5;i++)p+=`<ellipse cx="${x}" cy="${y-r}" rx="${r*0.58}" ry="${r}" fill="${c}" transform="rotate(${i*72} ${x} ${y})"/>`;return `<g>${p}<circle cx="${x}" cy="${y}" r="${r*0.44}" fill="${ctr||'#f6d36b'}"/></g>`;}
+
+  window.sceneSVG=function(variant){
+    const id=uid('sc'), grass=(variant==='grass');
+    const g1=grass?'#f3ead3':'#fdf3e7', g2=grass?'#ecebcf':'#f7e7d5', g3=grass?'#cdd99f':'#e7e1c1';
+    const shelfA=grass?'#aec486':'#ebe0cc', shelfB=grass?'#8ba869':'#d8c8ac';
+    return `<svg class="sceneArt" viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">`
+      +`<defs>`
+      +`<linearGradient id="${id}sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${g1}"/><stop offset="0.55" stop-color="${g2}"/><stop offset="1" stop-color="${g3}"/></linearGradient>`
+      +`<radialGradient id="${id}sun" cx="0.28" cy="0.1" r="0.7"><stop offset="0" stop-color="#fff8ea" stop-opacity="0.95"/><stop offset="1" stop-color="#fff8ea" stop-opacity="0"/></radialGradient>`
+      +`<linearGradient id="${id}shelf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${shelfA}"/><stop offset="1" stop-color="${shelfB}"/></linearGradient>`
+      +`<filter id="${id}b1" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5"/></filter>`
+      +`<filter id="${id}b2" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.4"/></filter>`
+      +`</defs>`
+      +`<rect width="400" height="300" fill="url(#${id}sky)"/>`
+      +`<rect width="400" height="300" fill="url(#${id}sun)"/>`
+      +`<g opacity="0.55" filter="url(#${id}b1)"><polygon points="55,-20 120,-20 78,230 44,230" fill="#fff6e6"/><polygon points="150,-20 188,-20 150,215 122,215" fill="#fff6e6" opacity="0.7"/><polygon points="235,-20 262,-20 238,200 214,200" fill="#fff6e6" opacity="0.5"/></g>`
+      +`<g filter="url(#${id}b1)" opacity="0.85">`
+        +sceneLeaf(44,246,'#8fae73',1.5)+sceneLeaf(16,250,'#7f9f65',1.2)
+        +sceneLeaf(360,250,'#86a76c',1.6)+sceneLeaf(392,252,'#9abb7e',1.2)+sceneLeaf(324,242,'#9cbb80',1.05)
+        +sceneFlower(66,176,'#f0a9b6',13,'#f6d36b')+sceneFlower(350,188,'#eeb0ba',12,'#f6d36b')+sceneFlower(300,156,'#f3c38f',10,'#e89a5a')
+      +`</g>`
+      +`<g filter="url(#${id}b1)"><circle cx="110" cy="92" r="13" fill="#ffffff" opacity="0.5"/><circle cx="262" cy="70" r="10" fill="#f7cdd2" opacity="0.5"/><circle cx="332" cy="112" r="15" fill="#ffffff" opacity="0.4"/><circle cx="182" cy="58" r="8" fill="#f3d9a7" opacity="0.55"/><circle cx="214" cy="120" r="7" fill="#ffffff" opacity="0.45"/></g>`
+      +`<path d="M-10 250 Q200 230 410 250 L410 310 L-10 310 Z" fill="url(#${id}shelf)"/>`
+      +`<ellipse cx="200" cy="251" rx="235" ry="11" fill="#ffffff26" filter="url(#${id}b2)"/>`
+      +`<path d="M-10 250 Q200 230 410 250" stroke="#00000012" stroke-width="2" fill="none"/>`
+      +(grass?`<g filter="url(#${id}b2)" opacity="0.8">${sceneFlower(70,262,'#f0a9b6',8,'#f6d36b')}${sceneFlower(150,270,'#f3c38f',7,'#e89a5a')}${sceneFlower(300,266,'#eeb0ba',8,'#f6d36b')}${sceneFlower(360,272,'#f0d24e',7,'#e07a3b')}</g>`:'')
+      +`</svg>`;
+  };
 })();

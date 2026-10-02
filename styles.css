@@ -37,10 +37,13 @@
 .stepper button{width:44px;height:44px;flex:none;border:1px solid var(--line);background:#fffaf7;border-radius:12px;font-size:20px;color:var(--ink)}
 .detailCard .sectionHead button{font-size:16px}
 
+/* garden background scene */
+.sceneArt{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0}
+.gardenHero:before,.gardenHero:after,.pannedScene:before,.pannedScene:after{content:none}
+.gardenHero .topbar,.pannedScene .topbar,.heroPlants,.pannedPlants,.celebrate,.pannedScene .empty{position:relative;z-index:2}
+
 /* garden hero — claymation head-pots */
 .gardenHero{height:300px}
-.gardenHero:after{content:none}
-.gardenHero:before{opacity:.65}
 .heroPlants{position:absolute;left:0;right:0;bottom:6px;display:flex;align-items:flex-end;justify-content:space-around;padding:0 18px;pointer-events:none}
 .heroPot .plantArt{width:150px;height:auto}
 .heroPot.right .plantArt{width:140px}
