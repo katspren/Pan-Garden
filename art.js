@@ -112,7 +112,7 @@
   window.plantSVG=function(type,stage,size){
     type=ALIAS[type]||type; if(!POTS[type])type='green';
     size=size||70; stage=Math.max(0,Math.min(4,stage|0));
-    const w=Math.round(size), h=Math.round(size*217/203);
+    const w=Math.round(size), h=Math.round(size*219/209);
     return `<img class="plantArt" src="plants/${type}_${stage}.png" alt="" width="${w}" height="${h}" loading="lazy">`;
   };
 
