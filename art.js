@@ -107,38 +107,13 @@
     purple:function(st){if(st<=0)return{back:sprout()};let back=blade(53,53,-95,8,2.8,Gmd,Gdk)+blade(60,53,-80,7,2.6,Glt,Gdk)+blade(56,52,-88,9,2.8,Gvv,Gdk);const L=[0,6,8,10,12][st];let front='';if(st>=1)front+=pearlStrand(36,56,L,-0.3);if(st>=2)front+=pearlStrand(78,58,L-1,0.3);if(st>=3)front+=pearlStrand(31,58,L+1,-0.4);if(st>=4)front+=pearlStrand(82,60,L,0.4);return{back:back,front:front};}
   };
 
+  /* Plant art is now the user's own growth renders, sliced into 35 tiles
+     (7 types x 5 stages) under plants/<type>_<stage>.png. Aspect ~202x231. */
   window.plantSVG=function(type,stage,size){
     type=ALIAS[type]||type; if(!POTS[type])type='green';
     size=size||70; stage=Math.max(0,Math.min(4,stage|0));
-    const P=POTS[type], g=uid('pg');
-    const sp=(SPECIES[type]||SPECIES.green)(stage), back=sp.back||'', front=sp.front||'';
-    const happy=(type==='pink'||type==='purple');
-    const face=happy
-      ? `<path d="M44.5 77 Q47.8 72.8 51 77" stroke="#3f2e2a" stroke-width="2.2" fill="none" stroke-linecap="round"/>`
-        +`<path d="M61 77 Q64.2 72.8 67.5 77" stroke="#3f2e2a" stroke-width="2.2" fill="none" stroke-linecap="round"/>`
-        +`<path d="M49.5 82 Q56 91 62.5 82 Z" fill="#3f2e2a"/>`
-        +`<path d="M53.6 86.4 Q56 89.4 58.4 86.4 Z" fill="#ec8ba6"/>`
-        +`<ellipse cx="42" cy="83" rx="3" ry="1.8" fill="#ffffff33"/><ellipse cx="70" cy="83" rx="3" ry="1.8" fill="#ffffff33"/>`
-      : `<ellipse cx="47.5" cy="76" rx="3.1" ry="4" fill="#3f2e2a"/><ellipse cx="64.5" cy="76" rx="3.1" ry="4" fill="#3f2e2a"/>`
-        +`<circle cx="48.7" cy="74.4" r="1.05" fill="#fff"/><circle cx="65.7" cy="74.4" r="1.05" fill="#fff"/>`
-        +`<path d="M50 84 Q56 89.5 62 84" stroke="#3f2e2a" stroke-width="2.3" fill="none" stroke-linecap="round"/>`
-        +`<ellipse cx="42" cy="83" rx="3" ry="1.8" fill="#ffffff2e"/><ellipse cx="70" cy="83" rx="3" ry="1.8" fill="#ffffff2e"/>`;
-    return `<svg class="plantArt" viewBox="0 0 112 108" width="${size}" height="${Math.round(size*0.965)}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">`
-      +`<defs>`
-      +`<linearGradient id="${g}b" x1="0" y1="0" x2="0.85" y2="1"><stop offset="0" stop-color="${P.l}"/><stop offset="1" stop-color="${P.d}"/></linearGradient>`
-      +`<radialGradient id="${g}h" cx="0.34" cy="0.26" r="0.85"><stop offset="0" stop-color="#ffffff66"/><stop offset="0.55" stop-color="#ffffff00"/></radialGradient>`
-      +`</defs>`
-      +`<ellipse cx="56" cy="103" rx="30" ry="5" fill="#00000012"/>`
-      +`<ellipse cx="46" cy="99" rx="6" ry="5.5" fill="${P.foot}"/><ellipse cx="66" cy="99" rx="6" ry="5.5" fill="${P.foot}"/>`
-      +`<path d="M30 76 Q 18 78 15 88" stroke="${P.arm}" stroke-width="6.5" fill="none" stroke-linecap="round"/>`
-      +`<path d="M82 76 Q 94 78 97 88" stroke="${P.arm}" stroke-width="6.5" fill="none" stroke-linecap="round"/>`
-      +back
-      +`<rect x="28" y="54" width="56" height="44" rx="15" fill="url(#${g}b)"/>`
-      +(type==='white'?`<rect x="28.5" y="54.5" width="55" height="43" rx="14.5" fill="none" stroke="#e5dacd" stroke-width="1"/>`:'')
-      +`<rect x="28" y="54" width="56" height="44" rx="15" fill="url(#${g}h)"/>`
-      +face
-      +front
-      +`</svg>`;
+    const w=Math.round(size), h=Math.round(size*231/202);
+    return `<img class="plantArt" src="plants/${type}_${stage}.png" alt="" width="${w}" height="${h}" loading="lazy">`;
   };
 
   window.productSVG=function(type,shade){
