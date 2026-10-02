@@ -59,30 +59,75 @@
     return `<g>${pet}<circle cx="${x}" cy="${y}" r="${3*sc}" fill="${P.center}"/><circle cx="${x-0.8*sc}" cy="${y-0.8*sc}" r="${1.1*sc}" fill="#fff6" /></g>`;
   }
 
-  window.plantSVG=function(color,stage,size){
+  /* ---- Seven planter "buddies" (original artwork) ----
+     Cube pot with a cute face, little arms and feet, in seven colors, each
+     holding a different plant species that grows across 5 stages. Inspired by
+     the LEGO Botanicals happy-plant look but drawn from scratch. */
+  const POTS={
+    green :{l:'#dceaa6',b:'#c6dd86',d:'#a4c05c',arm:'#b4cf72',foot:'#aec76a'},
+    pink  :{l:'#f4c3da',b:'#e79cc0',d:'#cd7ea6',arm:'#dd8fb3',foot:'#d888ac'},
+    blue  :{l:'#c6d8f4',b:'#9fbdea',d:'#7a9bd8',arm:'#8fb0e3',foot:'#88a9df'},
+    yellow:{l:'#f8e488',b:'#f0d24e',d:'#d2b134',arm:'#e6c647',foot:'#e0bf40'},
+    white :{l:'#ffffff',b:'#f3eee8',d:'#d8cdc0',arm:'#e7ddd1',foot:'#e3d8cb'},
+    purple:{l:'#ddcaf0',b:'#c3a8e4',d:'#a588cf',arm:'#b79add',foot:'#b093d9'},
+    sage  :{l:'#cdd9a8',b:'#b2c38c',d:'#93a76f',arm:'#a4b77e',foot:'#9fb279'}
+  };
+  const ALIAS={gold:'yellow',slate:'blue'};
+  const Gdk='#4f7f44', Gmd='#689a56', Glt='#86b870', Gvv='#5aa34e';
+  const n1=x=>(+x).toFixed(1);
+
+  function blade(cx,cy,ang,len,w,fill,edge){
+    const r=ang*Math.PI/180, tx=cx+Math.cos(r)*len, ty=cy+Math.sin(r)*len;
+    const px=Math.cos(r+Math.PI/2), py=Math.sin(r+Math.PI/2);
+    const b1x=cx+px*w,b1y=cy+py*w,b2x=cx-px*w,b2y=cy-py*w;
+    const m1x=cx+Math.cos(r)*len*0.55+px*w*1.05,m1y=cy+Math.sin(r)*len*0.55+py*w*1.05;
+    const m2x=cx+Math.cos(r)*len*0.55-px*w*1.05,m2y=cy+Math.sin(r)*len*0.55-py*w*1.05;
+    return `<path d="M${n1(b1x)} ${n1(b1y)} Q ${n1(m1x)} ${n1(m1y)} ${n1(tx)} ${n1(ty)} Q ${n1(m2x)} ${n1(m2y)} ${n1(b2x)} ${n1(b2y)} Z" fill="${fill}"/>`
+      +(edge?`<path d="M${n1(cx)} ${n1(cy)} L ${n1(tx)} ${n1(ty)}" stroke="${edge}" stroke-width="0.7" opacity="0.4" fill="none"/>`:'');
+  }
+  function stemTo(x1,y1,x2,y2,c,w){return `<path d="M${x1} ${y1} Q ${n1((x1+x2)/2)} ${n1((y1+y2)/2-6)} ${x2} ${y2}" stroke="${c||'#5f9150'}" stroke-width="${w||3.2}" fill="none" stroke-linecap="round"/>`;}
+  function daisy(x,y,r,petal,ctr,n){n=n||8;let p='';for(let i=0;i<n;i++)p+=`<ellipse cx="${x}" cy="${n1(y-r)}" rx="${n1(r*0.38)}" ry="${n1(r)}" fill="${petal}" transform="rotate(${(i*360/n).toFixed(0)} ${x} ${y})"/>`;return `<g>${p}<circle cx="${x}" cy="${y}" r="${n1(r*0.4)}" fill="${ctr}"/></g>`;}
+  function coin(x,y,r,c){return `<ellipse cx="${x}" cy="${y}" rx="${r}" ry="${n1(r*0.88)}" fill="${c}"/><ellipse cx="${n1(x-r*0.3)}" cy="${n1(y-r*0.3)}" rx="${n1(r*0.3)}" ry="${n1(r*0.2)}" fill="#ffffff33"/>`;}
+  function bead(x,y,r){return `<circle cx="${n1(x)}" cy="${n1(y)}" r="${r}" fill="#7bb063"/><circle cx="${n1(x-r*0.3)}" cy="${n1(y-r*0.3)}" r="${n1(r*0.32)}" fill="#ffffff44"/>`;}
+  function star(x,y,c,s){s=s||1;let p='';for(let i=0;i<5;i++){let a=(i*72-90)*Math.PI/180;p+=`${n1(x+Math.cos(a)*5*s)},${n1(y+Math.sin(a)*5*s)} `;let a2=(i*72-54)*Math.PI/180;p+=`${n1(x+Math.cos(a2)*2.1*s)},${n1(y+Math.sin(a2)*2.1*s)} `;}return `<polygon points="${p}" fill="${c}"/>`;}
+  function bell(x,y,c){return `<path d="M${n1(x-3.5)} ${n1(y-7)} Q ${x} ${n1(y+4)} ${n1(x+3.5)} ${n1(y-7)} Q ${x} ${n1(y-10)} ${n1(x-3.5)} ${n1(y-7)} Z" fill="${c}"/>`;}
+  function sprout(){return blade(56,55,-82,11,3.2,Glt,Gdk)+blade(56,55,-98,11,3.2,Gmd,Gdk);}
+  function rosette(cx,cy,n,len){let s='';const cols=[Gmd,Glt,'#9ac77f',Gvv];for(let i=0;i<n;i++){let ang=-176+(i+0.5)*(172/n);s+=blade(cx,cy,ang,len*(0.82+0.18*(i%2)),len*0.3,cols[i%cols.length],Gdk);}return s+blade(cx,cy,-90,len*0.8,len*0.28,Glt,Gdk);}
+  function coralStem(full){const tx=88,ty=full?16:34;let s=stemTo(56,52,tx,ty,'#6aa355',3.4);if(full){s+=bell(tx-5,ty+5,'#ef8a6e')+bell(tx+6,ty+5,'#ef8a6e')+bell(tx+1,ty-4,'#ef8a6e')+star(tx-9,ty,'#f3c431',1)+star(tx+11,ty,'#f3c431',1);}else{s+=bell(tx,ty+2,'#ef8a6e');}return s;}
+
+  const SPECIES={
+    sage:function(st){if(st<=0)return{back:sprout()};const n=[0,3,5,7,9][st],len=[0,15,19,23,26][st];let b=rosette(56,54,n,len);if(st>=4)b+=daisy(56,32,4,'#eca6b4','#f2d36a',6);return{back:b};},
+    pink:function(st){if(st<=0)return{back:sprout()};const n=[0,4,6,7,8][st],len=[0,15,19,22,24][st];let b=rosette(56,53,n,len);if(st>=3)b+=coralStem(st>=4);return{back:b};},
+    green:function(st){if(st<=0)return{back:sprout()};let b='';const stems=[[],[[48,30,-20]],[[46,28,-22],[66,30,20]],[[45,26,-24],[66,28,22],[56,22,0]],[[43,24,-26],[68,27,24],[56,19,0],[51,27,-10],[62,29,12]]][st];for(const s of stems){b+=stemTo(56,54,s[0],s[1],'#5f9150',3)+blade((s[0]+56)/2,(s[1]+54)/2,s[2]-90,9,3,Gmd,Gdk);}const fl=[0,1,2,3,5][st];const sp=[[48,27],[66,27],[56,20],[50,29],[63,30],[42,33]];for(let i=0;i<fl;i++)b+=daisy(sp[i][0],sp[i][1],4.6,'#d14d93','#f2d36a',8);return{back:b};},
+    blue:function(st){if(st<=0)return{back:sprout()};const c=[[],[[51,30]],[[47,30],[65,32]],[[45,28],[65,30],[56,22]],[[43,26],[67,29],[56,20],[51,30],[62,31]]][st];let b='';for(const p of c)b+=stemTo(56,54,p[0],p[1],'#6aa355',2.6)+coin(p[0],p[1]-2,6.5,'#5fa64e');return{back:b};},
+    yellow:function(st){if(st<=0)return{back:sprout()};const n=[0,3,5,7,9][st],len=[0,20,28,34,40][st];let b='';const cols=['#2f6e34','#3d7e3f','#4f9150'];for(let i=0;i<n;i++){let ang=-150+(i+0.5)*(120/n);b+=blade(56,55,ang,len*(0.8+0.2*(i%2)),len*0.12,cols[i%3],'#245a29');}return b?{back:b+blade(56,55,-90,len,len*0.13,'#4f9150','#245a29')}:{back:b};},
+    white:function(st){if(st<=0)return{back:sprout()};let b=blade(45,52,-150,16,4,Gmd,Gdk)+blade(67,52,-30,16,4,Gmd,Gdk)+blade(56,52,-90,18,4,Glt,Gdk);const sp=[[56,28,'#e9739a'],[46,32,'#f0914c'],[66,32,'#fbf4ec'],[51,24,'#c57fd8'],[63,25,'#f2c14e'],[41,38,'#ea6fa0'],[71,38,'#6ab0e0']];const fl=[0,2,3,5,7][st];for(let i=0;i<fl;i++)b+=daisy(sp[i][0],sp[i][1],4.4,sp[i][2],'#f6d06a',7);return{back:b};},
+    purple:function(st){if(st<=0)return{back:sprout()};let back=blade(52,53,-92,9,3,Gmd,Gdk)+blade(61,53,-72,8,3,Glt,Gdk);const strands=[[],[[39,57]],[[37,57],[75,59]],[[35,57],[77,59],[56,61]],[[34,57],[78,59],[49,61],[64,61]]][st];let front='';const nb=5+st*2;for(const s of strands){let y=s[1];for(let k=0;k<nb&&y<99;k++){front+=bead(s[0]+Math.sin(k*0.7)*2,y,2.5);y+=4;}}return{back:back,front:front};}
+  };
+
+  window.plantSVG=function(type,stage,size){
+    type=ALIAS[type]||type; if(!POTS[type])type='green';
     size=size||70; stage=Math.max(0,Math.min(4,stage|0));
-    const P=PALETTE[color]||PALETTE.pink;
-    const g=uid('pg');
-    let fol='';
-    if(stage<=0){ fol=leaf(55,52,-24,0.6)+leaf(55,52,24,0.6); }
-    else if(stage===1){ fol=stem(52,38,-3)+leaf(52,44,-42,0.78)+leaf(53,41,38,0.76); }
-    else if(stage===2){ fol=stem(49,32,-6)+stem(64,36,6)+leaf(49,38,-46,0.95)+leaf(50,33,26,0.86)+leaf(64,42,48,0.9)+leaf(64,37,70,0.64); }
-    else if(stage===3){ fol=stem(50,32,-6)+stem(63,34,6)+leaf(50,42,-46,0.95)+leaf(63,44,48,0.86)+bud(50,28,P)+bud(63,31,P); }
-    else { fol=stem(49,28,-7)+stem(63,31,7)+stem(56,21,0)+leaf(50,44,-47,0.95)+leaf(64,46,49,0.9)+leaf(48,38,-74,0.62)+bloom(49,25,1,P)+bloom(63,28,0.88,P)+bloom(56,18,1.05,P); }
-    return `<svg class="plantArt" viewBox="0 0 110 102" width="${size}" height="${Math.round(size*0.93)}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">`
+    const P=POTS[type], g=uid('pg');
+    const sp=(SPECIES[type]||SPECIES.green)(stage), back=sp.back||'', front=sp.front||'';
+    return `<svg class="plantArt" viewBox="0 0 112 108" width="${size}" height="${Math.round(size*0.965)}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">`
       +`<defs>`
       +`<linearGradient id="${g}b" x1="0" y1="0" x2="0.85" y2="1"><stop offset="0" stop-color="${P.l}"/><stop offset="1" stop-color="${P.d}"/></linearGradient>`
       +`<radialGradient id="${g}h" cx="0.34" cy="0.26" r="0.85"><stop offset="0" stop-color="#ffffff66"/><stop offset="0.55" stop-color="#ffffff00"/></radialGradient>`
       +`</defs>`
-      +`<ellipse cx="55" cy="97" rx="31" ry="5" fill="#00000012"/>`
-      +fol
-      +`<circle cx="84" cy="74" r="8.5" fill="${P.nub}"/><circle cx="84" cy="74" r="8.5" fill="url(#${g}h)"/>`
-      +`<rect x="27" y="52" width="56" height="44" rx="15" fill="url(#${g}b)"/>`
-      +`<rect x="27" y="52" width="56" height="44" rx="15" fill="url(#${g}h)"/>`
-      +`<ellipse cx="46.5" cy="74" rx="3.1" ry="4" fill="#3f2e2a"/><ellipse cx="63.5" cy="74" rx="3.1" ry="4" fill="#3f2e2a"/>`
-      +`<circle cx="47.7" cy="72.4" r="1.05" fill="#fff"/><circle cx="64.7" cy="72.4" r="1.05" fill="#fff"/>`
-      +`<path d="M49 82 Q55 87.5 61 82" stroke="#3f2e2a" stroke-width="2.3" fill="none" stroke-linecap="round"/>`
-      +`<ellipse cx="41" cy="81" rx="3.1" ry="1.9" fill="#ffffff33"/><ellipse cx="69" cy="81" rx="3.1" ry="1.9" fill="#ffffff33"/>`
+      +`<ellipse cx="56" cy="103" rx="30" ry="5" fill="#00000012"/>`
+      +`<ellipse cx="46" cy="99" rx="6" ry="5.5" fill="${P.foot}"/><ellipse cx="66" cy="99" rx="6" ry="5.5" fill="${P.foot}"/>`
+      +`<path d="M30 76 Q 18 78 15 88" stroke="${P.arm}" stroke-width="6.5" fill="none" stroke-linecap="round"/>`
+      +`<path d="M82 76 Q 94 78 97 88" stroke="${P.arm}" stroke-width="6.5" fill="none" stroke-linecap="round"/>`
+      +back
+      +`<rect x="28" y="54" width="56" height="44" rx="15" fill="url(#${g}b)"/>`
+      +(type==='white'?`<rect x="28.5" y="54.5" width="55" height="43" rx="14.5" fill="none" stroke="#e5dacd" stroke-width="1"/>`:'')
+      +`<rect x="28" y="54" width="56" height="44" rx="15" fill="url(#${g}h)"/>`
+      +`<ellipse cx="47.5" cy="76" rx="3.1" ry="4" fill="#3f2e2a"/><ellipse cx="64.5" cy="76" rx="3.1" ry="4" fill="#3f2e2a"/>`
+      +`<circle cx="48.7" cy="74.4" r="1.05" fill="#fff"/><circle cx="65.7" cy="74.4" r="1.05" fill="#fff"/>`
+      +`<path d="M50 84 Q56 89.5 62 84" stroke="#3f2e2a" stroke-width="2.3" fill="none" stroke-linecap="round"/>`
+      +`<ellipse cx="42" cy="83" rx="3" ry="1.8" fill="#ffffff2e"/><ellipse cx="70" cy="83" rx="3" ry="1.8" fill="#ffffff2e"/>`
+      +front
       +`</svg>`;
   };
 

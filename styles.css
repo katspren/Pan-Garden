@@ -99,8 +99,8 @@
 .thumbRemove{position:absolute;right:8px;top:8px;width:26px;height:26px;border:0;border-radius:50%;background:#0006;color:#fff;font-size:16px;line-height:1;cursor:pointer}
 .addTopFields .field{margin:0 0 12px}
 .addTopFields .field:last-child{margin-bottom:0}
-.plantChoices{display:flex;gap:10px}
-.plantChoice{width:64px;height:72px;border:2px solid transparent;background:#f3e4dc;border-radius:16px;display:flex;align-items:center;justify-content:center;padding:4px;cursor:pointer}
-.plantChoice .plantArt{width:46px;height:auto}
+.plantChoices{display:flex;flex-wrap:wrap;gap:8px}
+.plantChoice{width:60px;height:66px;border:2px solid transparent;background:#f3e4dc;border-radius:16px;display:flex;align-items:center;justify-content:center;padding:3px;cursor:pointer}
+.plantChoice .plantArt{width:48px;height:auto}
 .plantChoice.on{border-color:var(--pink);background:#f6dfe0}
 #versionBadge{opacity:.45;font-size:9px;padding:4px 7px}

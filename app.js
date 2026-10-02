@@ -196,7 +196,7 @@ function formView(){
     <label class="imageBtn">📤 Upload Photo<input type="file" accept="image/*" style="display:none" onchange="loadPhoto(this)"></label>
    </div>
    ${field('Paste Image URL',`<input id="imageUrl" placeholder="https://…" value="${urlVal}"><button type="button" class="softBtn" style="margin-top:8px" onclick="applyImageUrl()">Use this URL</button>`)}
-   <div class="field"><label>Choose a Plant</label><div class="plantChoices">${['pink','green','gold','slate'].map(k=>`<button type="button" class="plantChoice ${pick===k?'on':''}" onclick="setPlant('${k}')">${plantSVG(k,4,50)}</button>`).join('')}</div></div>
+   <div class="field"><label>Choose a Plant</label><div class="plantChoices">${['green','pink','yellow','blue','white','purple','sage'].map(k=>`<button type="button" class="plantChoice ${pick===k?'on':''}" onclick="setPlant('${k}')">${plantSVG(k,4,48)}</button>`).join('')}</div></div>
    <label class="field" style="display:flex;justify-content:space-between;align-items:center"><span>Active project pan</span><input type="checkbox" id="activeToggle" ${p.active?'checked':''} style="width:auto"></label>
    ${field('Notes',`<textarea id="notes" placeholder="Shade notes, pairing ideas…">${esc(p.notes)}</textarea>`)}
   </div>

@@ -91,4 +91,4 @@ const SEED_PRODUCTS = [
   {brand:'NARS',name:'Radiant Creamy Concealer — Crème Brûlée Light 2.5',category:'Base',shade:'#d6a98d',goal:40,active:true,notes:'Confirmed strong skin match.'},
   {brand:'Rare Beauty',name:'Liquid Contour — Gentle',category:'Base',shade:'#9c6e5b',goal:30},
   {brand:'Vasanti',name:'VO1 Corrector',category:'Base',shade:'#d58d6c',goal:30,active:true,notes:'Use under NARS; slightly orange as a standalone.'}
-].map((p,i)=>({id:'seed-'+i,uses:0,active:false,plant:i%2?'green':'pink',notes:'',...p}));
+].map((p,i)=>({id:'seed-'+i,uses:0,active:false,plant:['green','pink','yellow','blue','white','purple','sage'][i%7],notes:'',...p}));
